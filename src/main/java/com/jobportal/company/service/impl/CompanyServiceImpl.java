@@ -1,12 +1,11 @@
-package com.jobportal.service.impl;
+package com.jobportal.company.service.impl;
 
 
-import com.jobportal.dto.CompanyDto;
-import com.jobportal.entity.Company;
-import com.jobportal.repository.CompanyRepository;
-import com.jobportal.service.ICompanyService;
+import com.jobportal.company.dto.CompanyDto;
+import com.jobportal.company.entity.Company;
+import com.jobportal.company.repository.CompanyRepository;
+import com.jobportal.company.service.ICompanyService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

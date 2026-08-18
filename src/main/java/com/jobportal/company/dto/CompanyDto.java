@@ -1,4 +1,4 @@
-package com.jobportal.dto;
+package com.jobportal.company.dto;
 
 import java.math.BigDecimal;
 import java.time.Instant;
