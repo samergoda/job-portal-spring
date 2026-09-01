@@ -1,6 +1,7 @@
 package com.jobportal.company.service.impl;
 
 
+import com.jobportal.common.constants.ApplicationConstants;
 import com.jobportal.company.dto.CompanyDto;
 import com.jobportal.company.entity.Company;
 import com.jobportal.company.repository.CompanyRepository;
@@ -22,9 +23,10 @@ public class CompanyServiceImpl implements ICompanyService {
 
     @Override
     public List<CompanyDto> getAllCompanies() {
-        List<Company> companyList = companyRepository.findAll();
+        List<Company> companyList = companyRepository.findAllWithJobsByStatus(ApplicationConstants.ACTIVE_STATUS);
         return companyList.stream().map(this::transformCompanyToDto).collect(Collectors.toList());
     }
+
     private CompanyDto transformCompanyToDto(Company company) {
         List<JobDto> jobDtos = company.getJobs().stream()
                 .map(this::transformJobToDto)
