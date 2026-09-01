@@ -1,5 +1,6 @@
 package com.jobportal.audit;
 
+import com.jobportal.common.util.ApplicationUtility;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Component;
 
@@ -9,6 +10,6 @@ import java.util.Optional;
 public class AuditorAwareImpl implements AuditorAware<String> {
     @Override
     public Optional<String> getCurrentAuditor() {
-        return Optional.of("System");
+        return Optional.of(ApplicationUtility.getLoggedInUser());
     }
 }

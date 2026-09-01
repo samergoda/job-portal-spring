@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/companies")
+@RequestMapping("/{v}/companies")
 @RequiredArgsConstructor
 public class CompanyController {
   private final ICompanyService companyService;
 
-    @GetMapping(path = "/public", version = "1.0")
+    @GetMapping(path = "/public", version = "v1")
     public ResponseEntity<List<CompanyDto>> getAllCompanies(){
        List<CompanyDto> companyList = companyService.getAllCompanies();
         return ResponseEntity.ok().body(companyList);
