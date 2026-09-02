@@ -32,7 +32,7 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth")
+@RequestMapping("{v}/auth")
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
@@ -42,7 +42,7 @@ public class AuthController {
     private final JobPortalUserRepository jobPortalUserRepository;
     private final CompromisedPasswordChecker compromisedPasswordChecker;
 
-    @PostMapping(value = "/login/public",version = "1.0")
+    @PostMapping(value = "/login/public",version = "v1")
     public ResponseEntity<LoginResponseDto> apiLogin(@RequestBody LoginRequestDto loginRequestDto) {
         try {
             var resultAuthentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDto.username(),
@@ -70,7 +70,7 @@ public class AuthController {
 
     }
 
-    @PostMapping(value = "/register/public",version = "1.0")
+    @PostMapping(value = "/register/public",version = "v1")
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequestDto registerRequestDto) {
         CompromisedPasswordDecision decision = compromisedPasswordChecker
                 .check(registerRequestDto.password());
