@@ -3,6 +3,8 @@ package com.jobportal.job.entity;
 
 import com.jobportal.common.entity.BaseEntity;
 import com.jobportal.company.entity.Company;
+import com.jobportal.profile.entity.JobApplication;
+import com.jobportal.users.entity.JobPortalUser;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -14,6 +16,8 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -123,5 +127,11 @@ public class Job extends BaseEntity {
     @ColumnDefault("'ACTIVE'")
     @Column(name = "status", nullable = false, length = 20)
     private String status;
+
+    @ManyToMany(mappedBy = "savedJobs")
+    private Set<JobPortalUser> savedByUsers = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "job")
+    private Set<JobApplication> jobApplications = new LinkedHashSet<>();
 
 }

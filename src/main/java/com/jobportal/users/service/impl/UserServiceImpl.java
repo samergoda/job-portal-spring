@@ -18,21 +18,28 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements IUserService {
-    private final JobPortalUserRepository jobPortalUserRepository;
+
+    private final JobPortalUserRepository userRepository;
     private final RoleRepository roleRepository;
     private final CompanyRepository companyRepository;
 
+    @Override
+    public Optional<UserDto> searchUserByEmail(String email) {
+        return userRepository.findJobPortalUserByEmail(email)
+                .map(this::mapToUserDto);
+    }
 
     @Override
     public Optional<JobPortalUser> getUserByEmail(String email) {
-        return jobPortalUserRepository.findJobPortalUserByEmail(email);
+        return Optional.empty();
     }
 
     @Transactional
     @Override
     public UserDto elevateToEmployer(Long userId) {
-        JobPortalUser user =  jobPortalUserRepository.findById(userId)
+        JobPortalUser user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
 
         // Check if user is already an employer
@@ -48,13 +55,20 @@ public class UserServiceImpl implements IUserService {
         Role employerRole = roleRepository.findRoleByName(ApplicationConstants.ROLE_EMPLOYER)
                 .orElseThrow(() -> new RuntimeException("ROLE_EMPLOYER not found"));
         user.setRole(employerRole);
-
+        // JobPortalUser updatedUser = userRepository.save(user);
+        /**
+         * Why it’s unnecessary
+         * findById() returns a managed entity
+         * You modify it inside a transaction
+         * Dirty checking automatically updates it
+         */
         return mapToUserDto(user);
     }
 
+    @Transactional
     @Override
-    public UserDto assignCompanyToEmployer(Long userId,Long companyId) {
-        JobPortalUser user = jobPortalUserRepository.findById(userId)
+    public UserDto assignCompanyToEmployer(Long userId, Long companyId) {
+        JobPortalUser user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
         // Verify user is an employer
         if (!ApplicationConstants.ROLE_EMPLOYER.equals(user.getRole().getName())) {

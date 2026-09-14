@@ -10,6 +10,7 @@ import com.jobportal.job.dto.JobDto;
 import com.jobportal.job.entity.Job;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ public class CompanyServiceImpl implements ICompanyService {
 
     private final CompanyRepository companyRepository;
 
+    @Cacheable("companies")
     @Override
     public List<CompanyDto> getAllCompanies() {
         List<Company> companyList = companyRepository.fetchCompaniesWithJobsByStatus(ApplicationConstants.ACTIVE_STATUS);

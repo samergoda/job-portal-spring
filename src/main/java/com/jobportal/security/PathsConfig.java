@@ -27,6 +27,14 @@ public class PathsConfig {
         );
     }
 
+    @Bean(name = "employerPaths")
+    public List<String> employerPaths() {
+        return List.of(
+                "/api/{v}/jobs/employer",
+                "/api/{v}/jobs/${jobId}/status/employer"
+        );
+    }
+
     @Bean(name = "securedPaths")
     public List<String> securedPaths() {
         return List.of(
