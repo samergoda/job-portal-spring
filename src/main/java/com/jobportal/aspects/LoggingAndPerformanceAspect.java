@@ -14,19 +14,24 @@ import java.util.Arrays;
 @Slf4j
 public class LoggingAndPerformanceAspect {
 
-    // @Around("@annotation(com.eazybytes.jobportal.aspects.LogAspect)")
-    @Around("execution(* com.eazybytes.jobportal..*.*(..))")
+    /**
+     * Pointcut targets only controller and service layer methods.
+     * This avoids logging every repository call, entity getter/setter, and utility method.
+     */
+    @Around("execution(* com.jobportal..controller..*(..)) || execution(* com.jobportal..service..*(..))")
     public Object logAndMeasureExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
         String methodName = joinPoint.getSignature().toShortString();
         Object[] methodArgs = joinPoint.getArgs();
+        
         log.info("➡️ Entering method: {}", methodName);
-        log.info("📥 Arguments: {}", Arrays.toString(methodArgs));
-        // Proceed with actual business method
+        log.debug("📥 Arguments: {}", Arrays.toString(methodArgs));
+        
         Object result = joinPoint.proceed();
+        
         long executionTime = System.currentTimeMillis() - startTime;
-        log.info("✅ Method executed successfully: {}", methodName);
-        log.info("⏱ Execution time: {} ms", executionTime);
+        log.info("✅ Method {} completed in {} ms", methodName, executionTime);
+        
         return result;
     }
 }

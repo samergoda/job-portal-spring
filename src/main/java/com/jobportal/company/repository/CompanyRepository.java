@@ -1,8 +1,8 @@
 package com.jobportal.company.repository;
 
 import com.jobportal.company.entity.Company;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -15,26 +15,28 @@ import java.util.List;
 @Repository
 public interface CompanyRepository extends JpaRepository<Company, Long> {
 
+    /**
+     * Fetch all companies that have jobs with the given status (JPQL with JOIN FETCH).
+     */
     @Query("SELECT DISTINCT c FROM Company c JOIN FETCH c.jobs j WHERE j.status = :status")
     List<Company> findAllWithJobsByStatus(@Param("status") String status);
 
-    @Cacheable("jobs")
-    List<Company> fetchCompaniesWithJobsByStatus(@Param("status") String status);
+    /**
+     * Paginated version - fetch companies with jobs by status.
+     * Note: JOIN FETCH cannot be used with pagination, so we use regular JOIN here.
+     */
+    @Query(value = "SELECT DISTINCT c FROM Company c JOIN c.jobs j WHERE j.status = :status",
+            countQuery = "SELECT COUNT(DISTINCT c) FROM Company c JOIN c.jobs j WHERE j.status = :status")
+    Page<Company> findCompaniesWithJobsByStatus(@Param("status") String status, Pageable pageable);
 
-    @Query(value = "SELECT DISTINCT c.* FROM companies c JOIN jobs j ON c.id = j.company_id WHERE j.status = ?",
-            nativeQuery = true)
-    List<Company> findAllWithJobsByStatusNative(String status);
-
-    List<Company> fetchCompaniesWithJobsByStatusNative(String status);
-
-    @CacheEvict(value = "companies", allEntries = true)
-    void deleteById(Long id);
-
-    @CacheEvict(value = "companies", allEntries = true)
-    Company save(Company entity);
-
-    @CacheEvict(value = "companies", allEntries = true)
+    /**
+     * Update company details by ID.
+     */
     @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE Company c SET c.name = :name, c.logo = :logo, c.industry = :industry, " +
+            "c.size = :size, c.rating = :rating, c.locations = :locations, c.founded = :founded, " +
+            "c.description = :description, c.employees = :employees, c.website = :website " +
+            "WHERE c.id = :id")
     int updateCompanyDetails(
             @Param("id") Long id,
             @Param("name") String name,

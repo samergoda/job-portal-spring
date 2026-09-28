@@ -14,7 +14,7 @@ import java.util.Arrays;
 public class ExceptionAuditAspect {
 
     @AfterThrowing(
-            pointcut = "execution(* com.eazybytes.jobportal..*.*(..))",
+            pointcut = "execution(* com.jobportal..*.*(..))",
             throwing = "ex"
     )
     public void logAfterException(JoinPoint joinPoint, Exception ex) {

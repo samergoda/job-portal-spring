@@ -12,6 +12,10 @@ import com.jobportal.users.entity.JobPortalUser;
 import com.jobportal.users.repository.JobPortalUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +45,24 @@ public class JobServiceImpl implements IJobService {
         return jobs.stream()
                 .map(job -> ApplicationUtility.transformJobToDto(job))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<JobDto> getEmployerJobs(String employerEmail, int pageNumber, int pageSize,
+                                        String sortBy, String sortDir) {
+        JobPortalUser employer = userRepository.findJobPortalUserByEmail(employerEmail)
+                .orElseThrow(() -> new RuntimeException("Employer not found"));
+
+        if (employer.getCompany() == null) {
+            throw new RuntimeException("Employer does not have a company assigned");
+        }
+
+        Sort sort = sortDir.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Page<Job> jobPage = jobRepository.findByCompany(employer.getCompany(), pageable);
+        return jobPage.map(ApplicationUtility::transformJobToDto);
     }
 
     @Transactional

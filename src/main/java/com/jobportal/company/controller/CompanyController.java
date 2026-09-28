@@ -5,6 +5,7 @@ import com.jobportal.company.service.ICompanyService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,17 @@ public class CompanyController {
         return ResponseEntity.ok().body(companyList);
     }
 
+    @GetMapping(path = "/page/public", version = "v1")
+    public ResponseEntity<Page<CompanyDto>> getAllCompaniesWithPaginationAndSort(
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
+        Page<CompanyDto> companyPage = companyService
+                .getAllCompanies(pageNumber, pageSize, sortBy, sortDir);
+        return ResponseEntity.ok().body(companyPage);
+    }
+
     @PostMapping(path = "/admin", version = "v1")
     public ResponseEntity<String> createCompany(@RequestBody @Valid CompanyDto companyDto) {
         boolean isCreated = companyService.createCompany(companyDto);
@@ -39,6 +51,17 @@ public class CompanyController {
     public ResponseEntity<List<CompanyDto>> getAllCompaniesForAdmin() {
         List<CompanyDto> companyList = companyService.getAllCompaniesForAdmin();
         return ResponseEntity.ok().body(companyList);
+    }
+
+    @GetMapping(path = "/page/admin", version = "v1")
+    public ResponseEntity<Page<CompanyDto>> getAllCompaniesForAdminWithPaginationAndSort(
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
+        Page<CompanyDto> companyPage = companyService
+                .getAllCompaniesForAdmin(pageNumber, pageSize, sortBy, sortDir);
+        return ResponseEntity.ok().body(companyPage);
     }
 
     @PutMapping(path = "/{id}/admin", version = "v1")

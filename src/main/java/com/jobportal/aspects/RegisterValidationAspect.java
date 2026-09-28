@@ -29,7 +29,7 @@ public class RegisterValidationAspect {
     private final JobPortalUserRepository jobPortalUserRepository;
 
     @Before("""
-        execution(* com.eazybytes.jobportal.auth.AuthController
+        execution(* com.jobportal.auth.controller.AuthController
         .registerUser(..))
         """)
     public void validateBeforeRegister(JoinPoint joinPoint) {

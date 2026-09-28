@@ -4,6 +4,7 @@ import com.jobportal.job.dto.JobDto;
 import com.jobportal.job.service.IJobService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -22,6 +23,18 @@ public class JobController {
     public ResponseEntity<List<JobDto>> getEmployerJobs(Authentication authentication) {
         String employerEmail = authentication.getName();
         List<JobDto> jobs = jobService.getEmployerJobs(employerEmail);
+        return ResponseEntity.ok(jobs);
+    }
+
+    @GetMapping(path = "/jobs/page", version = "v1")
+    public ResponseEntity<Page<JobDto>> getEmployerJobsWithPaginationAndSort(
+            Authentication authentication,
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(defaultValue = "postedDate") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir) {
+        String employerEmail = authentication.getName();
+        Page<JobDto> jobs = jobService.getEmployerJobs(employerEmail, pageNumber, pageSize, sortBy, sortDir);
         return ResponseEntity.ok(jobs);
     }
 

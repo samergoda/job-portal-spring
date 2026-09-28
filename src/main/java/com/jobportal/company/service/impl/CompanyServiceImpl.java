@@ -10,7 +10,12 @@ import com.jobportal.job.dto.JobDto;
 import com.jobportal.job.entity.Job;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,35 +32,59 @@ public class CompanyServiceImpl implements ICompanyService {
     @Cacheable("companies")
     @Override
     public List<CompanyDto> getAllCompanies() {
-        List<Company> companyList = companyRepository.fetchCompaniesWithJobsByStatus(ApplicationConstants.ACTIVE_STATUS);
+        List<Company> companyList = companyRepository.findAllWithJobsByStatus(ApplicationConstants.ACTIVE_STATUS);
         return companyList.stream().map(this::transformCompanyToDto).collect(Collectors.toList());
     }
 
     @Override
+    public Page<CompanyDto> getAllCompanies(int pageNumber, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Page<Company> companyPage = companyRepository.findCompaniesWithJobsByStatus(
+                ApplicationConstants.ACTIVE_STATUS, pageable);
+        return companyPage.map(this::transformCompanyToDto);
+    }
+
+    @Override
     public List<CompanyDto> getAllCompaniesForAdmin() {
-        List<Company> companyList =companyRepository.findAll();
+        List<Company> companyList = companyRepository.findAll();
         return companyList.stream().map(this::transformCompanyToDtoForAdmin).collect(Collectors.toList());
     }
 
+    @Override
+    public Page<CompanyDto> getAllCompaniesForAdmin(int pageNumber, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Page<Company> companyPage = companyRepository.findAll(pageable);
+        return companyPage.map(this::transformCompanyToDtoForAdmin);
+    }
+
     @Transactional
+    @CacheEvict(value = "companies", allEntries = true)
     @Override
     public void deleteCompanyById(Long id) {
         companyRepository.deleteById(id);
     }
 
     @Transactional
+    @CacheEvict(value = "companies", allEntries = true)
     @Override
     public boolean updateCompanyDetails(Long id, CompanyDto companyDto) {
         int updatedRecords = companyRepository.updateCompanyDetails(
-                id,companyDto.name(),companyDto.logo(),
-                companyDto.industry(),companyDto.size(),companyDto.rating(),
-                companyDto.locations(),companyDto.founded(),companyDto.description(),
-                companyDto.employees(),companyDto.website()
+                id, companyDto.name(), companyDto.logo(),
+                companyDto.industry(), companyDto.size(), companyDto.rating(),
+                companyDto.locations(), companyDto.founded(), companyDto.description(),
+                companyDto.employees(), companyDto.website()
         );
         return updatedRecords > 0;
     }
 
     @Transactional
+    @CacheEvict(value = "companies", allEntries = true)
     @Override
     public boolean createCompany(CompanyDto companyDto) {
         Company company = transformCompanyDtoToEntity(companyDto);
@@ -70,7 +99,7 @@ public class CompanyServiceImpl implements ICompanyService {
         return new CompanyDto(company.getId(), company.getName(), company.getLogo(),
                 company.getIndustry(), company.getSize(), company.getRating(),
                 company.getLocations(), company.getFounded(), company.getDescription(),
-                company.getEmployees(), company.getWebsite(), company.getCreatedAt(),jobDtos);
+                company.getEmployees(), company.getWebsite(), company.getCreatedAt(), jobDtos);
     }
 
     private JobDto transformJobToDto(Job job) {
@@ -112,7 +141,7 @@ public class CompanyServiceImpl implements ICompanyService {
         return new CompanyDto(company.getId(), company.getName(), company.getLogo(),
                 company.getIndustry(), company.getSize(), company.getRating(),
                 company.getLocations(), company.getFounded(), company.getDescription(),
-                company.getEmployees(), company.getWebsite(), company.getCreatedAt(),null);
+                company.getEmployees(), company.getWebsite(), company.getCreatedAt(), null);
     }
 
 }

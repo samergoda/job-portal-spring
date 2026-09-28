@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 public class LoginSuccessAuditAspect {
 
     @AfterReturning(
-            pointcut = "execution(* com.eazybytes.jobportal.auth.AuthController.apiLogin(..))",
+            pointcut = "execution(* com.jobportal.auth.controller.AuthController.apiLogin(..))",
             returning = "response"
     )
     public void logSuccessfulLogin(JoinPoint joinPoint, Object response) {

@@ -52,10 +52,10 @@
     </root>
 
     <!-- ===================== -->
-    <!-- Application-specific ERROR logs -->
+    <!-- Application-specific logs -->
     <!-- ===================== -->
-    <logger name="com.eazybytes.jobportal"
-            level="ERROR"
+    <logger name="com.jobportal"
+            level="INFO"
             additivity="false">
         <appender-ref ref="RollingFile"/>
         <appender-ref ref="Console"/>
